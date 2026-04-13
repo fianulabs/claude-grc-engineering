@@ -4,6 +4,8 @@ description: ITAR-specific compliance assessment for defense articles
 
 # ITAR Assessment
 
+> **Engineering guidance only. Not legal advice.** DDTC determines ITAR applicability and jurisdiction, not this toolkit. Citations worth reading alongside this command: [22 CFR 120.54](https://www.ecfr.gov/current/title-22/chapter-I/subchapter-M/part-120) (encrypted-technical-data carve-out), [22 CFR 122.5](https://www.ecfr.gov/current/title-22/chapter-I/subchapter-M/part-122) (recordkeeping scope). Work with export-control counsel before adopting any of the postures below.
+
 Deep dive assessment for International Traffic in Arms Regulations (ITAR) compliance. Focuses on defense articles, technical data, and defense services under the US Munitions List (USML).
 
 ## Arguments
@@ -26,14 +28,15 @@ Deep dive assessment for International Traffic in Arms Regulations (ITAR) compli
 - Access logs show US-person-only access
 - Foreign national access attempts are logged and blocked
 
-### ITAR-2: US-Only Data Residency
+### ITAR-2: Data-Residency Posture (US-Located by Default)
 
-**Requirement**: ITAR data must be stored only in US geographic regions.
+**Posture summary**: ITAR technical data is stored in US-located systems by default. 22 CFR 120.54 carves out end-to-end-encrypted technical data from the release definition, so properly-encrypted-in-transit-and-at-rest deployment patterns have room that a strict "US regions only" rule doesn't capture. Default to US-located regions; raise the encryption-carve-out question with counsel before relying on it.
 
 **Assessment Questions**:
-- Are all resources deployed in US-only regions?
-- Is cross-border data replication disabled?
-- Are backups stored in US regions only?
+- Are production resources deployed in US-located regions by default?
+- If not, is the encryption posture documented and blessed by counsel?
+- Is cross-border data replication intentional and documented?
+- Are backups stored with the same posture as primary data?
 
 **Recommended Regions**:
 - **AWS**: us-gov-west-1, us-gov-east-1 (GovCloud)
@@ -56,13 +59,13 @@ Deep dive assessment for International Traffic in Arms Regulations (ITAR) compli
 
 ### ITAR-4: Access Logging and Audit
 
-**Requirement**: Maintain comprehensive audit trails for at least 5 years.
+**Requirement summary**: 22 CFR 122.5 requires ITAR-registered exporters to retain *specific record categories* (manufacturing, export transactions, broker records) for 5 years. It is not a blanket "retain every cloud log for 5 years" rule. Map which of your cloud logs actually carry those record categories, and set 5-year retention on *those*. General security/audit logs that fall outside 122.5 can have shorter retention set by your own policy or other applicable frameworks.
 
 **Assessment Questions**:
-- Is CloudTrail/equivalent enabled for all regions?
-- Are data events logged for S3 and other services?
-- Are logs retained for 5+ years?
-- Is log integrity protection enabled?
+- Is CloudTrail or equivalent enabled for all regions?
+- Are data events logged for S3 and other services that may carry 122.5-scope records?
+- Which logs carry 122.5 record categories, and are those retained for 5 years?
+- Is log integrity protection enabled (log-file validation, separate account, MFA delete)?
 
 ### ITAR-5: Network Isolation
 
@@ -103,7 +106,7 @@ Deep dive assessment for International Traffic in Arms Regulations (ITAR) compli
 
 | Platform | Recommendation | Notes |
 |----------|---------------|-------|
-| **AWS GovCloud** | Highly Recommended | FedRAMP High, US-only, US persons only |
+| **AWS GovCloud** | Highly Recommended | FedRAMP High, US-located, US persons only |
 | **Azure Government** | Highly Recommended | FedRAMP High, screened personnel |
 | **GCP Assured Workloads** | Recommended | With ITAR configuration, data residency controls |
 | **AWS Commercial** | Limited Use | US regions only, additional controls required |
@@ -124,6 +127,6 @@ Deep dive assessment for International Traffic in Arms Regulations (ITAR) compli
 ## Key Distinctions from EAR
 
 - **Personnel**: US persons only (ITAR) vs. No person restriction (EAR)
-- **Geography**: US-only data (ITAR) vs. Embargo screening (EAR)
+- **Geography**: US-located data by default for ITAR, with the 22 CFR 120.54 encryption carve-out available; EAR geography is driven by ECCN-specific licensing and 15 CFR 746 sanctions
 - **Authority**: State Dept DDTC (ITAR) vs. Commerce BIS (EAR)
 - **Scope**: Defense articles (ITAR) vs. Dual-use commercial (EAR)

@@ -4,6 +4,8 @@ description: Unified ITAR and EAR compliance assessment
 
 # US Export Controls Assessment
 
+> **Engineering guidance only. Not legal advice.** DDTC (ITAR) and BIS (EAR) are the authorities; the toolkit is not. Read alongside this: [22 CFR 120.54](https://www.ecfr.gov/current/title-22/chapter-I/subchapter-M/part-120), [22 CFR 122.5](https://www.ecfr.gov/current/title-22/chapter-I/subchapter-M/part-122), [15 CFR 734.6](https://www.ecfr.gov/current/title-15/section-734.6), [15 CFR 746.8](https://www.ecfr.gov/current/title-15/section-746.8), and the [BIS country guidance](https://www.bis.doc.gov/index.php/policy-guidance/country-guidance). Work with counsel before adopting any posture.
+
 Evaluates readiness for US export controls compliance across both ITAR (defense articles) and EAR (dual-use commercial) frameworks.
 
 ## Arguments
@@ -22,11 +24,11 @@ Evaluates readiness for US export controls compliance across both ITAR (defense 
 ## Assessment Output
 
 **ITAR Assessment** (7 controls):
-1. **US Person Verification** - Access limited to US citizens/permanent residents
-2. **US-Only Data Residency** - Data stored only in US regions
+1. **US Person Verification** - Access limited to US citizens / permanent residents
+2. **Data-Residency Posture** - US-located storage by default; 22 CFR 120.54 encryption carve-out available with counsel sign-off
 3. **Encryption Requirements** - FIPS 140-2 validated encryption
-4. **Access Logging** - 5+ year audit trail retention
-5. **Network Isolation** - Dedicated VPCs/VNets for ITAR workloads
+4. **Access Logging** - 5-year retention for records within 22 CFR 122.5 scope (not every log)
+5. **Network Isolation** - Dedicated VPCs / VNets for ITAR workloads
 6. **Export Control Marking** - Resources tagged with ITAR classification
 7. **Third-Party Access Control** - CSP access restrictions
 

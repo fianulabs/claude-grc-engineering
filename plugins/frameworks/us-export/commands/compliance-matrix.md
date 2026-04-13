@@ -4,6 +4,8 @@ description: ITAR vs EAR compliance requirements crosswalk
 
 # ITAR vs EAR Compliance Matrix
 
+> **Engineering guidance only. Not legal advice.** The matrix below is a simplified planning aid; DDTC and BIS make the actual determinations. The country lists, retention requirements, and residency postures shown here are starting points to discuss with export-control counsel. Sanctions rules in particular shift fast; verify against the [BIS country guidance](https://www.bis.doc.gov/index.php/policy-guidance/country-guidance) before acting on the country-list rows.
+
 Side-by-side comparison of ITAR and EAR requirements to understand overlaps, differences, and compliance strategies.
 
 ## Arguments
@@ -18,7 +20,7 @@ Side-by-side comparison of ITAR and EAR requirements to understand overlaps, dif
 | **Scope** | Defense articles, services, technical data (USML) | Dual-use commercial items (CCL) |
 | **Item List** | US Munitions List (USML) - 21 categories | Commerce Control List (CCL) - 10 categories |
 | **Personnel** | US persons only (citizens, permanent residents) | No personnel restrictions (except deemed exports) |
-| **Geography** | US-only data storage | Embargo country restrictions (CU, IR, KP, SY) |
+| **Geography** | US-located data by default; 22 CFR 120.54 carves out properly-encrypted technical data | BIS-driven (15 CFR 734.6). Sanctions rules in 15 CFR 746 cover comprehensive embargoes (CU, IR, KP, SY), Russia/Belarus (746.8), Crimea/DNR/LNR (746.6), and shift; check current BIS country guidance |
 | **Registration** | DDTC registration required ($3,000/year) | No registration (except encryption items) |
 | **Licensing** | License required for most exports | License required for high-level ECCNs, exceptions available |
 
@@ -27,9 +29,9 @@ Side-by-side comparison of ITAR and EAR requirements to understand overlaps, dif
 | Control Area | ITAR | EAR | Overlap |
 |--------------|------|-----|---------|
 | **Access Control** | US persons only verification | Denied party screening (Entity List, DPL, SDN) | ⚠️ Different mechanisms |
-| **Data Residency** | US-only regions mandatory | Embargo country blocking | ⚠️ Different requirements |
+| **Data Residency** | US-located regions by default (encryption carve-out per 22 CFR 120.54) | Driven by ECCN-specific licensing and current 15 CFR 746 sanctions | ⚠️ Different posture |
 | **Encryption** | FIPS 140-2 Level 2+ required | FIPS 140-2 for Category 5 Part 2 | ✅ Same standard |
-| **Audit Logging** | 5+ year retention | Varies by requirement | ⚠️ ITAR more stringent |
+| **Audit Logging** | 5-year retention for records within 22 CFR 122.5 scope (not all logs) | Varies by requirement | ⚠️ ITAR has scoped recordkeeping |
 | **Network Isolation** | Dedicated VPCs for ITAR | No specific requirement | ⚠️ ITAR only |
 | **Marking** | ITAR classification on all data | ECCN classification on items | ⚠️ Different schemes |
 | **Third-Party Access** | Restricted CSP access | Normal CSP access | ⚠️ ITAR more restrictive |
@@ -58,23 +60,24 @@ Side-by-side comparison of ITAR and EAR requirements to understand overlaps, dif
 
 ### 2. Data Residency
 
-**ITAR-2: US-Only Data Residency**
-- **Requirement**: All data stored in US geographic regions only
-- **Allowed Regions**: us-gov-*, us-east-*, us-west-*
-- **Prohibited**: Any non-US region, cross-border replication
+**ITAR-2: Data-Residency Posture**
+- **Default**: ITAR technical data stored in US-located systems
+- **Carve-out**: 22 CFR 120.54 means properly-encrypted technical data isn't automatically released; deployment patterns vary if counsel blesses them
+- **Common safe choice**: us-gov-*, us-east-*, us-west-* in commercial regions (with controls), or GovCloud equivalents
 
 **EAR-4: Geographic Access Controls**
-- **Requirement**: Block access from embargoed countries
-- **Blocked Countries**: Cuba (CU), Iran (IR), North Korea (KP), Syria (SY)
-- **Allowed**: Any region worldwide (except embargoed)
+- **Authority**: BIS, not this toolkit (15 CFR 734.6)
+- **Comprehensive embargoes**: Cuba (CU), Iran (IR), North Korea (KP), Syria (SY) under 15 CFR 746
+- **Other current rules**: Russia and Belarus under 15 CFR 746.8; Crimea / so-called DNR / LNR regions of Ukraine under 746.6; sectoral and item-specific rules elsewhere in 746
+- **Don't**: treat the four-country list above as complete. The BIS country guidance is the live source.
 
 **Overlap**: ✅ Partial overlap
-- ITAR US-only regions automatically satisfy EAR embargo blocking
-- But EAR allows global regions (with screening)
+- US-located ITAR regions tend to satisfy comprehensive embargo blocking by default
+- EAR access controls for items not subject to 15 CFR 746 may permit non-US regions; ECCN-specific licensing applies
 
 **Compliance Strategy**:
-- **ITAR workloads**: Use GovCloud/US-only regions
-- **EAR workloads**: Use any region + geo-blocking for embargoes
+- **ITAR workloads**: Default to GovCloud or US-located regions; counsel before relying on the encryption carve-out for non-US storage
+- **EAR workloads**: Region choice depends on your ECCN, applicable licensing under 15 CFR 740 (license exceptions), and current 15 CFR 746 sanctions. Geo-block per BIS country guidance, not the four-country shorthand.
 - **Mixed**: Segregate systems by framework
 
 ### 3. Encryption
@@ -100,9 +103,9 @@ Side-by-side comparison of ITAR and EAR requirements to understand overlaps, dif
 ### 4. Audit and Logging
 
 **ITAR-4: Access Logging and Audit**
-- **Requirement**: Comprehensive audit trails for 5+ years
-- **Scope**: All management and data events
-- **Retention**: Minimum 5 years
+- **22 CFR 122.5 scope**: Specific record categories (manufacturing, export transactions, broker records) for ITAR-registered exporters retained 5 years
+- **Not in 122.5**: General CloudTrail/admin audit logs unless they carry 122.5-scope records
+- **Engineering action**: Identify which logs carry 122.5-scope records and retain those for 5 years; set general security/audit-log retention based on your own policy and other applicable frameworks (FedRAMP, SOC 2, etc.)
 
 **EAR**: No specific logging requirement
 - **Best Practice**: Follow standard audit practices
@@ -110,11 +113,11 @@ Side-by-side comparison of ITAR and EAR requirements to understand overlaps, dif
 
 **Overlap**: ⚠️ ITAR more stringent
 - EAR has no specific logging requirement
-- ITAR requires 5+ year retention
+- ITAR has 5-year retention under 22 CFR 122.5 for specific record categories (not every log)
 
 **Compliance Strategy**:
-- **ITAR**: CloudTrail/equivalent with 5-year retention
-- **EAR**: Standard logging (1-2 years may suffice)
+- **ITAR**: CloudTrail or equivalent. 5-year retention on records within 22 CFR 122.5 scope; shorter retention OK for non-122.5 logs unless another framework requires more
+- **EAR**: Standard operational logging; retention per your own policy and other applicable frameworks
 
 ### 5. Classification and Marking
 
@@ -182,9 +185,9 @@ These controls satisfy both ITAR and EAR:
 - Satisfies EAR-2
 
 ✅ **Access Logging**
-- ITAR requires 5 years
-- EAR benefits from logging
-- CloudTrail/equivalent satisfies both
+- ITAR requires 5-year retention for record categories named in 22 CFR 122.5 (not every log)
+- EAR benefits from logging as operational and audit evidence
+- CloudTrail or equivalent satisfies both, with retention scoped per 122.5
 
 ## Framework-Specific Controls
 
@@ -196,9 +199,9 @@ These apply only to ITAR, not EAR:
 - Not required for EAR
 - Critical for ITAR compliance
 
-🔒 **US-Only Data Residency** (ITAR-2)
-- Not required for EAR (except embargo countries)
-- Mandatory for ITAR
+🔒 **US-Located Data Residency by Default** (ITAR-2)
+- ITAR defaults to US-located storage; 22 CFR 120.54 encryption carve-out is the documented exception
+- EAR residency depends on ECCN and current 15 CFR 746 sanctions, not a uniform "embargo countries only" rule
 
 🔒 **Network Isolation** (ITAR-5)
 - Not required for EAR
@@ -234,7 +237,7 @@ These apply only to EAR, not ITAR:
 
 1. ✅ **Keep**: FIPS 140-2 encryption (helps EAR compliance)
 2. ✅ **Keep**: Access logging (best practice)
-3. ⚠️ **Modify**: Expand from US-only to global (add embargo blocking)
+3. ⚠️ **Modify**: Region scope shifts from US-located default to ECCN-driven; add geo-blocking aligned with current 15 CFR 746 sanctions, not the four-country shorthand
 4. ⚠️ **Modify**: Add ECCN classification
 5. ⚠️ **Add**: Denied party screening
 6. ❌ **Remove**: US person requirement (can allow foreign nationals)
@@ -276,7 +279,7 @@ These apply only to EAR, not ITAR:
 
 ## Quick Reference
 
-**When ITAR applies**: Use strictest controls (US persons, US-only regions)
-**When EAR applies**: Use specific controls (ECCN, screening, embargo blocking)
-**When both apply**: Segregate systems or apply ITAR controls + EAR additions
-**When uncertain**: Submit Commodity Jurisdiction request to DDTC
+**When ITAR applies**: Default to strictest controls (US-person access, US-located regions). 22 CFR 120.54 encryption carve-out is available with counsel sign-off.
+**When EAR applies**: Apply ECCN-specific controls, denied-party screening, and current 15 CFR 746 sanctions.
+**When both apply**: Segregate systems or apply ITAR defaults + EAR additions.
+**When uncertain**: Submit a Commodity Jurisdiction request to DDTC and an ECCN classification to BIS via counsel.

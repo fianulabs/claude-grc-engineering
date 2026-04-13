@@ -1,9 +1,15 @@
 name: ITAR - International Traffic in Arms Regulations
 version: "2024"
 description: |
-  Export control requirements for defense articles, technical data, and defense services
-  under the U.S. Munitions List (USML). Administered by the State Department's Directorate
-  of Defense Trade Controls (DDTC).
+  Engineering posture map for defense articles, technical data, and defense services
+  under the U.S. Munitions List (USML). Administered by the State Department's
+  Directorate of Defense Trade Controls (DDTC).
+
+  ENGINEERING GUIDANCE ONLY. NOT LEGAL ADVICE. The cloud_tests and pass_criteria
+  below are starting points for security engineers; DDTC determines applicability
+  and the 22 CFR 120.54 encrypted-technical-data carve-out and 22 CFR 122.5
+  recordkeeping scope are nuanced. Validate specific postures with export-control
+  counsel before adoption.
 
 applicable_to:
   - Defense contractors
@@ -13,11 +19,17 @@ applicable_to:
 
 key_requirements:
   data_sovereignty:
-    description: ITAR-controlled data must remain within US persons and US borders
+    description: |
+      ITAR-controlled technical data is stored in US-located systems by default.
+      22 CFR 120.54 carves out properly-encrypted technical data from the release
+      definition, so non-US storage of end-to-end-encrypted data with US-controlled
+      keys can be defensible. Default to US-located; document any deviation with
+      counsel.
     cloud_controls:
-      - Data must be stored in US-only regions
+      - Default: data stored in US-located regions
       - Access limited to US persons
       - No foreign national access without authorization
+      - Non-US storage requires documented encryption posture and counsel sign-off
 
   access_control:
     description: Only US persons may access ITAR-controlled technical data
@@ -68,8 +80,11 @@ controls:
             pass_criteria: "Access limited to US persons"
 
   ITAR-2:
-    title: US-Only Data Residency
-    description: ITAR data must be stored only in US geographic regions
+    title: Data-Residency Posture (US-Located by Default)
+    description: |
+      ITAR technical data is stored in US-located regions by default.
+      22 CFR 120.54 encryption carve-out can permit non-US storage of properly-
+      encrypted data; do not rely on it without counsel sign-off.
     cloud_tests:
       aws:
         commands:
@@ -84,7 +99,7 @@ controls:
             pass_criteria: "All instances in US regions"
         evidence_script: |
           #!/bin/bash
-          echo "=== ITAR-2 US-Only Data Residency ==="
+          echo "=== ITAR-2 Data Residency (US-Located by Default) ==="
           echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo ""
           echo "=== S3 Bucket Locations ==="
@@ -174,7 +189,7 @@ controls:
             pass_criteria: "Data events logged for S3 and other services"
           - cmd: "aws logs describe-log-groups --query 'logGroups[*].{Name:logGroupName,RetentionDays:retentionInDays}'"
             description: "Check log retention"
-            pass_criteria: "Logs retained per ITAR requirements (5+ years)"
+            pass_criteria: "Logs covering 22 CFR 122.5 record categories retained 5+ years (operational logs may have shorter retention)"
         evidence_script: |
           #!/bin/bash
           echo "=== ITAR-4 Access Logging and Audit ==="
@@ -186,7 +201,7 @@ controls:
           echo "=== Log Retention ==="
           aws logs describe-log-groups --query 'logGroups[*].{Name:logGroupName,RetentionDays:retentionInDays}' --output table
           echo ""
-          echo "NOTE: ITAR requires audit logs to be retained for at least 5 years"
+          echo "NOTE: 22 CFR 122.5 requires 5-year retention for specific record categories (manufacturing, transactions, broker records). Map your logs to those categories; don't assume every audit log is in scope. Operational logs can have shorter retention set by your own policy."
       azure:
         commands:
           - cmd: "az monitor activity-log list --max-events 5"
@@ -263,18 +278,18 @@ controls:
             pass_criteria: "Third-party access is controlled"
 
 aws_govcloud:
-  description: AWS GovCloud (US) is recommended for ITAR workloads
+  description: AWS GovCloud (US) is the conservative default for ITAR workloads
   benefits:
-    - US-only regions
+    - US-located regions
     - US persons only personnel
     - FedRAMP High authorization
-    - ITAR compliance support
+    - Documented ITAR support story from AWS
   verification_command: "aws ec2 describe-regions --region us-gov-west-1"
 
 azure_government:
-  description: Azure Government is recommended for ITAR workloads
+  description: Azure Government is the conservative default for ITAR workloads on Azure
   benefits:
-    - US-only datacenters
+    - US-located datacenters
     - Screened US personnel
     - FedRAMP High authorization
   verification_command: "az cloud list --query '[?name==`AzureUSGovernment`]'"

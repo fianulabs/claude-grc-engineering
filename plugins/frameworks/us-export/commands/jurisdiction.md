@@ -4,6 +4,8 @@ description: Determine ITAR vs EAR jurisdiction applicability
 
 # Export Control Jurisdiction
 
+> **Engineering guidance only. Not legal advice.** Jurisdiction determinations are made by DDTC and BIS (Commodity Jurisdiction and Classification Requests), not by this toolkit. Use the decision framework below as a starting point for internal triage; file a Commodity Jurisdiction (CJ) request or an ECCN classification through counsel before relying on any determination.
+
 Helps determine whether ITAR, EAR, or both apply to your products, technology, and services.
 
 ## Arguments
@@ -70,7 +72,7 @@ If NOT on USML, check if on CCL:
 
 **Product**: Technical data for military aircraft avionics
 **Analysis**: Military aircraft → USML Category VIII → **ITAR applies**
-**Requirements**: DDTC registration, US persons only, US-only data
+**Posture (validate with counsel)**: DDTC registration, US-person access, US-located data by default (22 CFR 120.54 encryption carve-out available)
 **Recommendation**: Use AWS GovCloud or Azure Government
 
 ### Scenario 2: Encryption Software Company

@@ -102,7 +102,7 @@ A reference layer: control IDs, families, implementation guidance, evidence patt
 | **stateramp** | `/stateramp:` | State and local government cloud authorization |
 | **essential8** | `/essential8:` | Australian Essential 8 and maturity levels |
 | **glba** | `/glba:` | GLBA Safeguards and Privacy Rules |
-| **us-export** | `/us-export:` | ITAR and EAR combined |
+| **us-export** | `/us-export:` | ITAR and EAR combined. **Engineering guidance only, not legal advice.** Export-control determinations come from DDTC and BIS; confirm postures with counsel. |
 | **pbmm** | `/pbmm:` | Canadian Protected B cloud (ITSG-33) |
 | **ismap** | `/ismap:` | Japanese ISMAP gov cloud |
 | **irap** | `/irap:` | Australian IRAP gov cloud (ISM and Essential Eight) |

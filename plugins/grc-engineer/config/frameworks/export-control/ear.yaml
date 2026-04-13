@@ -1,10 +1,16 @@
 name: EAR - Export Administration Regulations
 version: "2024"
 description: |
-  Export control requirements for dual-use commercial items under the Commerce Control
-  List (CCL). Administered by the Bureau of Industry and Security (BIS), U.S. Department
-  of Commerce. Controls technology, software, and commodities that have both commercial
-  and potential military applications.
+  Engineering posture map for dual-use commercial items under the Commerce Control
+  List (CCL). Administered by the Bureau of Industry and Security (BIS), U.S.
+  Department of Commerce. Controls technology, software, and commodities that have
+  both commercial and potential military applications.
+
+  ENGINEERING GUIDANCE ONLY. NOT LEGAL ADVICE. Under 15 CFR 734.6, BIS is the
+  authority on EAR licensing. Sanctions rules in 15 CFR 746 (comprehensive
+  embargoes, Russia/Belarus under 746.8, Crimea/DNR/LNR under 746.6, etc.)
+  shift; verify against current BIS country guidance before adopting any
+  geo-blocking posture below. Validate with export-control counsel.
 
 applicable_to:
   - Commercial exporters of dual-use items
@@ -161,51 +167,60 @@ controls:
 
   EAR-4:
     title: Geographic Access Controls
-    description: Prevent access from embargoed countries and comprehensively sanctioned regions
+    description: |
+      Block access in line with current 15 CFR 746 sanctions and any item-specific
+      licensing under 15 CFR 740. The country list shifts; the BIS country guidance
+      page is the authoritative live reference.
     cloud_tests:
       aws:
         commands:
           - cmd: "aws wafv2 list-web-acls --scope REGIONAL"
             description: "Check WAF rules for geographic restrictions"
-            pass_criteria: "WAF blocks access from Cuba, Iran, North Korea, Syria, Crimea region"
+            pass_criteria: "WAF blocks access aligned with current 15 CFR 746 sanctions (at minimum: comprehensive embargoes CU, IR, KP, SY; Crimea/DNR/LNR per 746.6; item controls under 746.8 for Russia/Belarus)"
           - cmd: "aws cloudfront list-distributions --query 'DistributionList.Items[*].Restrictions'"
             description: "Check CloudFront geo-restrictions"
-            pass_criteria: "Embargoed countries blocked: CU, IR, KP, SY, UA (Crimea)"
+            pass_criteria: "CDN restrictions reflect current sanctions; verify against BIS country guidance"
           - cmd: "aws guardduty list-findings --finding-criteria 'Criterion={\"resource.resourceType\":{\"Eq\":[\"AccessKey\"]}}'"
             description: "Check GuardDuty for suspicious geographic access"
-            pass_criteria: "Access from embargoed countries is detected and blocked"
+            pass_criteria: "Access from sanctioned regions is detected and blocked"
         evidence_script: |
           #!/bin/bash
           echo "=== EAR-4 Geographic Access Controls ==="
           echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo ""
-          echo "=== EAR Embargoed Countries ==="
-          echo "Comprehensively Sanctioned:"
+          echo "ENGINEERING GUIDANCE ONLY. NOT LEGAL ADVICE."
+          echo "Verify the current sanctions list against BIS country guidance:"
+          echo "  https://www.bis.doc.gov/index.php/policy-guidance/country-guidance"
+          echo ""
+          echo "=== Snapshot of EAR-relevant sanctions (verify before relying on) ==="
+          echo "Comprehensive embargoes (15 CFR 746):"
           echo "  - Cuba (CU)"
           echo "  - Iran (IR)"
           echo "  - North Korea (KP)"
           echo "  - Syria (SY)"
-          echo "  - Crimea region of Ukraine"
           echo ""
-          echo "Partially Sanctioned (check specific restrictions):"
-          echo "  - Russia (RU) - certain items restricted"
-          echo "  - Belarus (BY) - certain items restricted"
-          echo "  - Venezuela (VE) - certain items restricted"
+          echo "Region-specific comprehensive sanctions (15 CFR 746.6):"
+          echo "  - Crimea, so-called DNR, and so-called LNR regions of Ukraine"
+          echo ""
+          echo "Item-level country controls (15 CFR 746.8 et al.):"
+          echo "  - Russia (RU) and Belarus (BY): broad item-level restrictions"
+          echo "  - Venezuela (VE): restrictions per 15 CFR 746.10"
+          echo "  - Other countries: see BIS country guidance for current actions"
           echo ""
           echo "=== CloudFront Geo-Restrictions ==="
           aws cloudfront list-distributions --query 'DistributionList.Items[*].{Id:Id,Restrictions:Restrictions.GeoRestriction}' --output table
           echo ""
-          echo "NOTE: Use AWS WAF GeoMatch to block embargoed countries"
+          echo "Apply geo-blocking matched to current BIS guidance, not a static four-country list."
       azure:
         commands:
           - cmd: "az network front-door list --query '[].frontendEndpoints[].resourceState'"
             description: "Check Front Door geo-filtering rules"
-            pass_criteria: "Embargoed countries blocked at edge"
+            pass_criteria: "Geo-filtering aligned with current 15 CFR 746 sanctions"
       gcp:
         commands:
           - cmd: "gcloud compute security-policies list"
             description: "Check Cloud Armor geo-blocking policies"
-            pass_criteria: "Embargo countries blocked via Cloud Armor rules"
+            pass_criteria: "Cloud Armor rules aligned with current 15 CFR 746 sanctions"
 
   EAR-5:
     title: Technology Transfer Controls

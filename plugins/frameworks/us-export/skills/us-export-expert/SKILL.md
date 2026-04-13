@@ -6,6 +6,8 @@ allowed-tools: Read, Glob, Grep, Write
 
 # US Export Controls Expert
 
+> **Engineering guidance only. Not legal advice.** Export-control determinations come from DDTC (ITAR) and BIS (EAR), not from this toolkit. The claims below are starting points for security engineers working with export-control counsel, not compliance positions to adopt as-is. Citations to read alongside this material: [22 CFR 120.54](https://www.ecfr.gov/current/title-22/chapter-I/subchapter-M/part-120) (the ITAR encrypted-technical-data carve-out: access to properly-keyed, end-to-end-encrypted technical data is not automatically a release), [22 CFR 122.5](https://www.ecfr.gov/current/title-22/chapter-I/subchapter-M/part-122) (ITAR recordkeeping, scoped to specific record categories), [15 CFR 734.6](https://www.ecfr.gov/current/title-15/section-734.6) (BIS is the licensing authority on EAR), [15 CFR 746.8](https://www.ecfr.gov/current/title-15/section-746.8) (Russia and Belarus sanctions). The [BIS country guidance](https://www.bis.doc.gov/index.php/policy-guidance/country-guidance) is the live sanctions list; it moves and this file will lag.
+
 Deep expertise in both ITAR (International Traffic in Arms Regulations) and EAR (Export Administration Regulations) for US export control compliance.
 
 ## Expertise Areas
@@ -16,13 +18,13 @@ Deep expertise in both ITAR (International Traffic in Arms Regulations) and EAR 
 - **Authority**: US Department of State, Directorate of Defense Trade Controls (DDTC)
 - **Scope**: Defense articles, services, and technical data on the US Munitions List (USML)
 - **Registration**: Required ($3,000/year)
-- **Key Requirement**: US persons only, US-only data storage
+- **Key posture (simplified)**: access restricted to US persons; technical data stored in US-located systems by default. The 22 CFR 120.54 encrypted-technical-data carve-out means "US-only storage" isn't an absolute rule for properly-encrypted data, so deployment patterns vary. Validate with counsel for your USML category.
 
 **EAR (Export Administration Regulations)**:
 - **Authority**: US Department of Commerce, Bureau of Industry and Security (BIS)
 - **Scope**: Dual-use commercial items on the Commerce Control List (CCL)
 - **Registration**: Not required (except encryption items)
-- **Key Requirement**: Denied party screening, embargo country blocking
+- **Key posture (simplified)**: denied-party screening and sanctions-driven access controls. Under 15 CFR 734.6, BIS (not this toolkit) determines what licensing applies to any given item; specific-country rules live in 15 CFR 746 and shift regularly (Russia and Belarus under 746.8, Crimea/DNR/LNR under 746.6, etc.).
 
 ### ITAR Framework (7 Controls)
 
@@ -50,9 +52,9 @@ aws iam list-users --query 'Users[*].UserName'
 - Contractors without citizenship verification
 - Shared accounts without individual attribution
 
-#### ITAR-2: US-Only Data Residency
+#### ITAR-2: Data-Residency Posture (US-Located by Default)
 
-**Requirement**: ITAR data must be stored only in US geographic regions
+**Posture summary**: ITAR technical data is stored in US-located systems by default. 22 CFR 120.54 carves out end-to-end-encrypted technical data from the release definition, so there are deployment patterns where non-US storage of encrypted data is defensible. Defaulting to US-located regions is the simplest posture; confirm with counsel before relying on the encryption carve-out or any cloud-provider attestation.
 
 **Approved Regions**:
 - **AWS GovCloud**: us-gov-west-1, us-gov-east-1 (highly recommended)
@@ -95,18 +97,18 @@ done
 
 #### ITAR-4: Access Logging and Audit
 
-**Requirement**: Maintain comprehensive audit trails for at least 5 years
+**Requirement summary**: 22 CFR 122.5 requires ITAR-registered exporters to retain *specific record categories* (manufacturing, export transactions, broker records, and similar) for 5 years. This is not a blanket "retain every cloud log for 5 years" mandate. Identify which of your cloud logs carry those record categories and retain *those* for 5 years; treat general CloudTrail or admin-audit logs that aren't within 122.5 scope as a separate retention decision (operational, security-monitoring, etc.) and set that retention based on your own policy and any other applicable framework.
 
-**Logging Scope**:
-- All management events (IAM changes, resource creation)
-- All data events (S3 object access, database queries)
+**Logging scope that's usually worth capturing (operational + security, not all strictly under 122.5)**:
+- Management events (IAM changes, resource creation)
+- Data-access events (S3 object access, database queries)
 - Authentication and authorization events
 - Failed access attempts
 
 **Implementation**:
-- **AWS**: CloudTrail with S3 logging, 5-year retention
-- **Azure**: Activity Log, Monitor, 5-year retention
-- **GCP**: Cloud Logging with log exports, 5-year retention
+- **AWS**: CloudTrail with S3 logging. Retain 122.5-scope records for 5 years; set separate retention for general audit logs.
+- **Azure**: Activity Log, Monitor. Same scoping principle.
+- **GCP**: Cloud Logging with log exports. Same scoping principle.
 
 **Log Protection**:
 - Log file validation enabled
@@ -429,15 +431,15 @@ Step 3: Item not on USML or CCL
 - Implementation: AWS KMS, Azure Key Vault HSM, GCP Cloud KMS
 
 ✅ **Access Logging**
-- ITAR-4 requires 5+ years
-- EAR benefits from logging
-- Implementation: CloudTrail/equivalent with long retention
+- ITAR-4 requires 5-year retention for the record categories named in 22 CFR 122.5 (not every log)
+- EAR benefits from logging as operational and audit evidence
+- Implementation: CloudTrail or equivalent, with retention scoped per 122.5 record categories
 
 **Framework-Specific Controls**:
 
 **ITAR-Only**:
 - ITAR-1: US Person Verification (not required for EAR)
-- ITAR-2: US-Only Data Residency (EAR only requires embargo blocking)
+- ITAR-2: US-located residency by default, with the 22 CFR 120.54 encryption carve-out available (EAR geography is driven by sanctions and licensing, not a uniform rule)
 - ITAR-5: Network Isolation (not required for EAR)
 
 **EAR-Only**:
@@ -446,9 +448,9 @@ Step 3: Item not on USML or CCL
 - EAR-7: License Exceptions (not available for ITAR)
 
 **Compliance Strategy**:
-- **If ITAR applies**: Use strictest controls (US persons, US-only regions)
-- **If EAR applies**: Use specific controls (ECCN, screening, embargo blocking)
-- **If both apply**: Segregate systems OR apply ITAR controls + EAR additions
+- **If ITAR applies**: Default to strictest controls (US-person access, US-located regions). The 22 CFR 120.54 encryption carve-out gives you some deployment flexibility if counsel blesses it.
+- **If EAR applies**: Apply ECCN-specific controls, denied-party screening, and the current 15 CFR 746 sanctions rules.
+- **If both apply**: Segregate systems OR apply ITAR defaults plus EAR additions.
 
 ### Cloud Platform Recommendations
 
@@ -543,11 +545,11 @@ Step 3: Item not on USML or CCL
 - Denied party screening automation and API integration
 - ECCN classification for encryption software and technology
 - License Exception applicability (ENC, TSU, BAG, TMP)
-- Data residency verification for ITAR (US-only) and EAR (embargo blocking)
+- Data residency verification: ITAR defaults to US-located storage (with the 22 CFR 120.54 encryption carve-out where counsel approves); EAR residency depends on ECCN, licensing posture, and current 15 CFR 746 sanctions
 - Cloud platform selection (GovCloud vs commercial) based on framework
 - Deemed export analysis for foreign national access to technical data
 - Crosswalk between ITAR and EAR overlapping and unique controls
 - Compliance cost estimation and resource planning
 - Export control marking and resource tagging strategies
-- Audit trail configuration and 5-year log retention implementation
+- Audit trail configuration and 5-year retention for records within 22 CFR 122.5 scope
 - Voluntary self-disclosure guidance for potential violations

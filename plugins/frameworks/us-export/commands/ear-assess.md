@@ -4,6 +4,8 @@ description: EAR-specific compliance assessment for dual-use commercial items
 
 # EAR Assessment
 
+> **Engineering guidance only. Not legal advice.** BIS determines EAR applicability, ECCNs, and license requirements, not this toolkit. Under [15 CFR 734.6](https://www.ecfr.gov/current/title-15/section-734.6), BIS is the authority; the country-specific sanctions rules live in [15 CFR 746](https://www.ecfr.gov/current/title-15/part-746) and change regularly (e.g. [Russia and Belarus under 746.8](https://www.ecfr.gov/current/title-15/section-746.8), Crimea/DNR/LNR under 746.6). Check the [BIS country guidance](https://www.bis.doc.gov/index.php/policy-guidance/country-guidance) for current sanctions text. Work with export-control counsel before relying on any posture below.
+
 Deep dive assessment for Export Administration Regulations (EAR) compliance. Focuses on dual-use commercial items, encryption products, and technology under the Commerce Control List (CCL).
 
 ## Arguments
@@ -186,8 +188,8 @@ Is the item on the CCL (Commerce Control List)?
 
 ## Key Distinctions from ITAR
 
-- **Personnel**: No US person requirement (EAR) vs. US persons only (ITAR)
-- **Geography**: Embargo screening (EAR) vs. US-only data (ITAR)
+- **Personnel**: No blanket US-person requirement (EAR) vs. US persons only (ITAR)
+- **Geography**: BIS-driven, ECCN-specific, sanctions per 15 CFR 746 (EAR) vs. US-located by default with 22 CFR 120.54 encryption carve-out (ITAR)
 - **Authority**: Commerce BIS (EAR) vs. State DDTC (ITAR)
 - **License Exceptions**: Available for EAR, not for ITAR
 - **Scope**: Dual-use commercial (EAR) vs. Defense articles (ITAR)

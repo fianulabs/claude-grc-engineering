@@ -4,7 +4,9 @@ description: Verify data residency requirements for ITAR and EAR
 
 # Data Residency Verification
 
-Verifies data residency requirements for both ITAR (US-only) and EAR (embargo screening) compliance.
+> **Engineering guidance only. Not legal advice.** ITAR and EAR residency postures vary by USML category, ECCN, deployment model, encryption posture, and CSP attestations. The defaults below are starting points, not compliance positions. The country lists here can lag the live BIS sanctions text; verify against the [BIS country guidance](https://www.bis.doc.gov/index.php/policy-guidance/country-guidance) and 22 CFR 120.54 (the ITAR encrypted-technical-data carve-out) before acting.
+
+Verifies data residency posture for ITAR (US-located by default) and EAR (BIS-driven sanctions and licensing).
 
 ## Arguments
 
@@ -13,9 +15,9 @@ Verifies data residency requirements for both ITAR (US-only) and EAR (embargo sc
 
 ## ITAR Data Residency Requirements
 
-### Requirement: US-Only Data Storage
+### Posture: US-Located Storage by Default
 
-ITAR-controlled data must be stored **only** in US geographic regions. Cross-border data transfer is prohibited without authorization.
+ITAR-controlled technical data is stored in US-located systems by default. [22 CFR 120.54](https://www.ecfr.gov/current/title-22/chapter-I/subchapter-M/part-120) carves out properly-encrypted technical data from the release definition, so deployment patterns where end-to-end-encrypted data is stored or transmitted abroad can be defensible. This is not a free pass: the encryption has to actually be end-to-end, the keys have to be controlled by US persons, and counsel needs to bless the posture in writing for your specific USML category and CSP. When in doubt, default to US-located regions.
 
 ### Recommended Cloud Regions
 
@@ -92,25 +94,33 @@ gcloud compute regions list --filter='name:us-*'
 gcloud assured list --location=us-central1
 ```
 
-## EAR Data Residency Requirements
+## EAR Data Residency Posture
 
-### Requirement: Embargo Country Restrictions
+### BIS-Driven, Not "Any Region Worldwide"
 
-EAR does **not** require US-only data storage, but **prohibits** data access from embargoed countries.
+EAR doesn't impose a uniform "store data in US-only regions" rule, but it also isn't "any region worldwide minus four embargoed countries." [15 CFR 734.6](https://www.ecfr.gov/current/title-15/section-734.6) makes clear that BIS determines what licensing applies. The relevant access controls depend on:
 
-### Embargoed Countries (Blocked Access)
+- **Your item's ECCN** (or EAR99 status), per the Commerce Control List
+- **Whether a license exception applies** under [15 CFR 740](https://www.ecfr.gov/current/title-15/part-740) (ENC, TSU, etc.)
+- **Current sanctions** under [15 CFR 746](https://www.ecfr.gov/current/title-15/part-746), which extend well beyond the four "comprehensive embargo" countries
 
-**Comprehensively Sanctioned** (no exports):
+### Sanctions Snapshot (Verify Before Acting)
+
+The list below is a snapshot, not a substitute for the current BIS country guidance. Sanctions move quickly. Before deploying access controls, check the [BIS country guidance page](https://www.bis.doc.gov/index.php/policy-guidance/country-guidance) and the most recent Federal Register entries.
+
+**Comprehensive embargoes** (broad export restrictions, [15 CFR 746](https://www.ecfr.gov/current/title-15/part-746)):
 - **Cuba** (CU)
 - **Iran** (IR)
 - **North Korea** (KP)
 - **Syria** (SY)
-- **Crimea region of Ukraine**
 
-**Partially Sanctioned** (check specific restrictions):
-- **Russia** (RU) - certain items restricted
-- **Belarus** (BY) - certain items restricted
-- **Venezuela** (VE) - certain restrictions
+**Region-specific comprehensive sanctions** (15 CFR 746.6):
+- **Crimea, so-called Donetsk People's Republic, and Luhansk People's Republic regions of Ukraine**
+
+**Country-specific item-level controls** (verify scope against current BIS text):
+- **Russia** (RU) and **Belarus** (BY): broad item-level restrictions under [15 CFR 746.8](https://www.ecfr.gov/current/title-15/section-746.8); not a partial regime
+- **Venezuela** (VE): specific restrictions under [15 CFR 746.10](https://www.ecfr.gov/current/title-15/section-746.10)
+- **Other countries**: BIS publishes ongoing entity-list and country-specific actions; the BIS country guidance page is authoritative
 
 ### Geographic Access Controls
 
@@ -173,8 +183,8 @@ gcloud compute security-policies rules create 1000 \
 
 | Framework | Requirement | Allowed Regions | Blocked Regions |
 |-----------|-------------|-----------------|-----------------|
-| **ITAR** | US-only storage | us-gov-*, us-east-*, us-west-* | All non-US regions |
-| **EAR** | Embargo screening | Any region worldwide | Access from CU, IR, KP, SY |
+| **ITAR** | US-located by default; 22 CFR 120.54 encryption carve-out available | us-gov-*, us-east-*, us-west-* by default | Non-US regions unless encryption posture is documented and counsel-approved |
+| **EAR** | BIS determines (15 CFR 734.6); ECCN-driven; sanctions per 15 CFR 746 | Depends on ECCN, license exceptions, and current sanctions | At minimum: comprehensive embargoes (CU, IR, KP, SY), Crimea/DNR/LNR (746.6), Russia and Belarus item controls (746.8). Verify against current BIS country guidance. |
 
 ## Multi-Region Considerations
 
@@ -194,15 +204,19 @@ us-gov-west-1 → us-gov-east-1  ✅ ALLOWED
 
 ### EAR Multi-Region
 
-**Allowed**: Global regions except embargoed countries
+**Permitted regions depend on the ECCN, applicable license exceptions, and current 15 CFR 746 sanctions.** Without those facts, "any region worldwide" is wrong. With those facts, common patterns:
+
 ```
 Primary: us-east-1
-DR: eu-west-1  ✅ ALLOWED (with embargo screening)
+DR: eu-west-1  ✅ Often OK for EAR99 / unrestricted ECCNs with denied-party screening; verify under your ECCN
+DR: ap-southeast-1  ✅ Often OK for the same; check that no entity-list parties are in the access path
 ```
 
-**Prohibited**: Regions in embargoed countries
+**Always blocked** (comprehensive embargoes plus region-specific sanctions):
 ```
-Any region → Iran/Syria/Cuba/North Korea  ❌ PROHIBITED
+Any region → Iran, Syria, Cuba, North Korea  ❌
+Any region → Crimea / DNR / LNR regions of Ukraine  ❌
+Item-controlled access → Russia, Belarus  ❌ for items under 15 CFR 746.8
 ```
 
 ## Cloud Provider Support Matrix
@@ -309,21 +323,21 @@ gcloud sql instances list --format='table(name,region)'
 
 ## Common Violations
 
-### ITAR Violations
+### Common ITAR Risk Patterns (Validate Each With Counsel)
 
-❌ **Storing data in non-US region**
+⚠ **ITAR technical data in a non-US region without the 22 CFR 120.54 encryption carve-out documented**
 ```
-s3://my-bucket (eu-west-1)  ← VIOLATION
-```
-
-❌ **Cross-border backup replication**
-```
-us-east-1 → ap-southeast-1  ← VIOLATION
+s3://my-bucket (eu-west-1) holding plaintext or single-key-managed-by-CSP technical data  ← high risk
 ```
 
-❌ **Global CloudFront with EU edge**
+⚠ **Cross-border replication of plaintext technical data**
 ```
-CloudFront with European edge locations  ← VIOLATION
+us-east-1 → ap-southeast-1 with no end-to-end encryption layer  ← high risk
+```
+
+⚠ **CDN with non-US edge caching ITAR technical data**
+```
+CloudFront with European edge locations caching ITAR-bearing payloads  ← high risk
 ```
 
 ### EAR Violations
