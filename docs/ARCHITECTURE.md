@@ -84,7 +84,7 @@ Without a contract, `/gap-assessment` would need bespoke parsers for every tool'
 
 Two independent fields. `status` is the pass/fail semantic; `severity` is the impact if the check were failing. A *low-severity failure* is real (just not urgent). A *passing critical-severity* control produces `status=pass, severity=critical`: it still matters because it tells `/gap-assessment` what the stakes would be if the control regressed.
 
-`inconclusive` is not a workaround for "I didn't check." Use it when the tool *tried* and *couldn't determine*: a dropped API call, missing permission, rate-limited. Consumers treat it as a signal to re-run, not a pass.
+`inconclusive` is not a workaround for "didn't check." Use it when the tool *tried* and *couldn't determine*: a dropped API call, missing permission, rate-limited. Consumers treat it as a signal to re-run, not a pass.
 
 ## The crosswalk layer
 
@@ -105,7 +105,7 @@ Report shows:          "Data at rest encryption is failing: violates 4 framework
 - **Coverage**: 249 frameworks including the obscure regional ones (Argentina LGPD, Bermuda BMA CoC, etc.).
 - **Maintained**: upstream publishes quarterly; the SCF API repo auto-syncs weekly.
 - **Neutral**: SCF is framework-agnostic, so mapping "SCF → everywhere else" is the minimum edit distance.
-- **Licensable**: SCF data is CC BY-ND. I fetch, attribute, and never modify it. See `docs/SCF-ATTRIBUTION.md`.
+- **Licensable**: SCF data is CC BY-ND. The toolkit fetches, attributes, and never modifies it. See `docs/SCF-ATTRIBUTION.md`.
 
 ### Non-SCF evaluations
 
