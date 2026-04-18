@@ -22,6 +22,8 @@ exclude = [
   "^https://github\\.com/orgs/.*/teams/",
   # Some regulator sites return 5xx to scrapers but render fine in browsers
   "^https://www\\.ecfr\\.gov",
+  # canada.ca returns HTTP/2 protocol errors to lychee's client; renders fine in browsers
+  "^https://www\\.canada\\.ca",
 ]
 
 exclude_all_private = true
