@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a Claude Code plugin marketplace for Governance, Risk, and Compliance (GRC) professionals. The repository provides 25 specialized plugins organized into:
+This is the official open-source Claude Code plugin marketplace of the [GRC Engineering Club](https://grcengclub.com) for Governance, Risk, and Compliance (GRC) professionals. The repository provides 30 specialized plugins organized into:
 - **4 persona-based plugins** (grc-engineer, grc-auditor, grc-internal, grc-tprm)
-- **21 framework-specific plugins** (soc2, nist-800-53, iso27001, fedramp-rev5, fedramp-20x, pci-dss, cmmc, hitrust, cis-controls, gdpr, csa-ccm, nydfs, dora, stateramp, essential8, glba, us-export, pbmm, ismap, irap, and more)
+- **21 framework-specific plugins** (soc2, nist-800-53, iso27001, fedramp-rev5, fedramp-20x, pci-dss, cmmc, hitrust, cis-controls, gdpr, csa-ccm, nydfs, dora, stateramp, essential8, glba, us-export, pbmm, ismap, irap)
+- **4 Tier-1 connector plugins** (aws-inspector, gcp-inspector, github-inspector, okta-inspector) that emit findings matching `schemas/finding.schema.json`
+- **OSCAL tooling plugins** (oscal, fedramp-ssp) wrapping external upstream projects
 
 Each plugin contains commands (user-facing) and skills (AI agents that implement functionality).
 

@@ -1,6 +1,16 @@
 # Contributing
 
-The most valuable contributions to `claude-grc-engineering` are **new connectors** and **improvements to existing connectors**. A second high-value lane is **framework plugin improvements**: especially control-mapping refinements and real-world implementation guidance.
+`claude-grc-engineering` is the official open-source toolkit of the [GRC Engineering Club](https://grcengclub.com). Contributions are welcome from anyone working in GRC — assessors, internal audit, security engineering, CISO teams, TPRM, platform operators, framework experts.
+
+The most valuable contributions are **new connectors** and **improvements to existing connectors**. A second high-value lane is **framework plugin improvements**: especially control-mapping refinements and real-world implementation guidance.
+
+## First-time contributors
+
+If this is your first PR here:
+
+1. Browse [`good-first-issue`](https://github.com/GRCEngClub/claude-grc-engineering/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) labels for a self-contained starting task (typically 2–4 hours of work).
+2. Open a **draft PR** early — even with a skeleton commit. A maintainer will review direction before you sink time into it.
+3. Stuck? Start a thread in [Discussions](https://github.com/GRCEngClub/claude-grc-engineering/discussions) and tag the area (`connector`, `framework`, `docs`). "How would I add a connector for X?" is a welcome question.
 
 ## Ground rules
 
@@ -155,9 +165,19 @@ Reviewers will look for:
 - Is the output schema-conformant and the user-facing text clear?
 - Does it earn its place in the toolkit (vs. something a user could script in 10 lines)?
 
+## Recognition
+
+Contributors are credited via the [all-contributors](https://allcontributors.org) bot. After a PR merges, a maintainer will add the contributor to `CONTRIBUTORS.md` — or contributors can self-nominate by commenting on their own PR:
+
+```
+@all-contributors please add @your-username for code,doc
+```
+
+Contribution types include `code`, `doc`, `review`, `question`, `ideas`, `infra`, `content`, `bug`, `example`, `test`. Use multiple types when applicable.
+
 ## Security
 
-- **Reporting vulnerabilities**: email (preferred) or open a private security advisory on GitHub. Don't file public issues for security problems.
+- **Reporting vulnerabilities**: open a [private security advisory](https://github.com/GRCEngClub/claude-grc-engineering/security/advisories/new) on GitHub. Don't file public issues for security problems.
 - **Secrets**: never commit credentials, tokens, org IDs, or internal URLs. Run a local secret scanner before pushing: [`git-secrets`](https://github.com/awslabs/git-secrets), [`detect-secrets`](https://github.com/Yelp/detect-secrets), or [`trufflehog`](https://github.com/trufflesecurity/trufflehog). A shipped pre-commit hook is on the v0.2 roadmap; until then, the only gate is the one you run locally.
 - **Evidence artifacts**: the evidence-checklist commands write to `evidence/` (gitignored). That directory holds real usernames, credential reports, MFA device states, and privileged-account inventories. Never commit it. If you find it in a PR, reject the PR and ask the contributor to rotate any exposed credentials. For GDPR-scoped work, raw exports may carry personal data subject to Art. 5 minimization and storage-limitation rules: keep only what you need and delete on a schedule.
 

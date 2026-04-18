@@ -1,28 +1,26 @@
 # claude-grc-engineering
 
-I've worked both sides of FedRAMP: years as a 3PAO assessor, and I build open-source GRC tooling for the teams stuck doing the work by hand. Every team I've assessed ends up re-inventing the same pipeline: pull evidence from AWS, GitHub, GCP, and Okta; map it to SOC 2 or NIST 800-53 or FedRAMP Moderate/High; generate a gap report; fight with OSCAL. I wanted one toolkit that did the whole pipeline end-to-end without bolting me into a vendor platform. This is it.
-
-Install as a [Claude Code](https://docs.claude.com/claude-code) plugin. Run:
+The official open-source GRC toolkit from the [GRC Engineering Club](https://grcengclub.com) — turning checkbox compliance into engineered systems. It ships as a [Claude Code](https://docs.claude.com/claude-code) plugin marketplace: persona plugins for engineers, auditors, internal GRC teams, and TPRM; 20+ framework reference plugins from SOC 2 to FedRAMP to APRA; and thin cloud/SaaS connectors that emit a common Finding contract. Assessors, platform engineers, and GRC teams everywhere end up re-inventing the same pipeline — pull evidence, crosswalk to a framework, generate a gap report, wrestle OSCAL. The Club maintains one toolkit that does the whole pipeline end-to-end without locking anyone into a vendor platform.
 
 ```
-/grc-engineer:gap-assessment SOC2,FedRAMP-Moderate --sources=aws,github
+/grc-engineer:gap-assessment SOC2,FedRAMP-High --sources=aws,github
 ```
 
-You get a prioritized, effort-estimated, remediation-linked gap report backed by 1,468 [Secure Controls Framework](https://securecontrolsframework.com) controls crosswalked to 249 frameworks.
+A prioritized, effort-estimated, remediation-linked gap report backed by 1,468 [Secure Controls Framework](https://securecontrolsframework.com) controls crosswalked to 249 frameworks.
 
-> Not affiliated with Anthropic. Independent open-source project. Claude, Anthropic, and any related marks are property of their respective owners.
+> Not affiliated with Anthropic. Community open-source project. Claude, Anthropic, and any related marks are property of their respective owners.
 
-## What I'm taking a position on
+## Design positions
 
-A few opinionated design choices worth naming up front, since they're most of what makes this different from a Vanta or Drata clone.
+A few opinionated choices worth naming up front, since they're most of what makes this different from a Vanta or Drata clone.
 
-**SCF is the right crosswalk source.** Everyone rolls their own control-mapping tables. They're usually incomplete, and nobody maintains them past the quarter they were built in. SCF has 1,468 controls mapped bidirectionally to 249 frameworks, publishes quarterly, and ships as a static JSON API. Use it as the backbone. Stop hand-maintaining CSVs.
+**SCF is the right crosswalk source.** Most GRC tools roll their own control-mapping tables. They're usually incomplete, and nobody maintains them past the quarter they were built in. SCF has 1,468 controls mapped bidirectionally to 249 frameworks, publishes quarterly, and ships as a static JSON API. The toolkit uses it as the backbone. No hand-maintained CSVs.
 
-**Connectors should be thin.** Most GRC platforms bundle giant agents that do everything. That's a vendor lock-in pattern, not an engineering pattern. Every connector here is a few hundred lines that shells out to tools you already have (`aws`, `gcloud`, `gh`, direct Okta API). You can rip and replace any of them without touching the rest of the toolkit.
+**Connectors should be thin.** Platform vendors bundle giant agents that do everything. That's a lock-in pattern, not an engineering pattern. Every connector here is a few hundred lines that shells out to tools teams already have (`aws`, `gcloud`, `gh`, direct Okta API). Any connector can be ripped out and replaced without touching the rest of the toolkit.
 
-**Framework plugins don't reproduce standard text.** ISO 27001, PCI DSS, and HITRUST CSF text is copyrighted. Plenty of GRC tools publish that text inside their product and hope nobody notices. This toolkit references control IDs and ships implementation guidance in my own words. Your licensed copy of the standard is the source of truth.
+**Framework plugins don't reproduce standard text.** ISO 27001, PCI DSS, and HITRUST CSF text is copyrighted. Plenty of GRC tools publish that text inside their product and hope nobody notices. This toolkit references control IDs and ships implementation guidance in paraphrased form. Each team's licensed copy of the standard is the source of truth.
 
-**Vanta, Drata, OneTrust, and Archer are good at what they do.** They're also expensive, slow to extend, and assume you have a compliance team. This is for teams that want the engineering layer without the platform lock-in, and for 3PAOs and assessors who want to cross-check what a platform is reporting.
+**Vanta, Drata, OneTrust, and Archer are good at what they do.** They're also expensive, slow to extend, and assume a dedicated compliance team. This toolkit is for teams that want the engineering layer without the platform lock-in, and for 3PAOs and assessors who want to cross-check what a platform is reporting.
 
 ## 60-second install
 
@@ -32,7 +30,7 @@ A few opinionated design choices worth naming up front, since they're most of wh
 /plugin install grc-engineer@grc-engineering-suite
 ```
 
-For a first run with no cloud credentials, use your GitHub account as the data source:
+For a first run with no cloud credentials, use a GitHub account as the data source:
 
 ```bash
 /plugin install github-inspector@grc-engineering-suite
@@ -134,6 +132,8 @@ Want a connector that isn't here? [Contribute one](docs/CONTRIBUTING.md). A typi
 | **fedramp-docs** | MCP integration with [`ethanolivertroy/fedramp-docs-mcp`](https://github.com/ethanolivertroy/fedramp-docs-mcp) for live FedRAMP documentation search (roadmap) |
 | **vanta-bridge** | `/vanta:export-evidence` using `vanta-go-export` to pull Vanta evidence and normalize to Findings (roadmap) |
 
+The OSCAL tooling plugins wrap independent upstream projects maintained outside the Club. Their attribution stays with the original authors; the plugin wrappers are part of this toolkit.
+
 ## The data contract
 
 Every connector emits Findings matching [`schemas/finding.schema.json`](schemas/finding.schema.json). One Finding is one resource with one or more control evaluations. Example:
@@ -174,7 +174,7 @@ The contract is versioned. Consumers pin a major version. Contract tests run in 
 
 SCF is the canonical control vocabulary. 1,468 SCF controls map bidirectionally to 249 frameworks. When a connector reports an SCF control failure, `/gap-assessment` expands it into every requested framework via the crosswalk.
 
-SCF data is fetched from [`hackidle.github.io/scf-api`](https://hackidle.github.io/scf-api/) and cached locally. Licensing (CC BY-ND 4.0): I fetch and redistribute verbatim, never modify. See [`docs/SCF-ATTRIBUTION.md`](docs/SCF-ATTRIBUTION.md).
+SCF data is fetched from [`hackidle.github.io/scf-api`](https://hackidle.github.io/scf-api/) and cached locally. Licensing (CC BY-ND 4.0): the toolkit fetches and redistributes verbatim, never modified. See [`docs/SCF-ATTRIBUTION.md`](docs/SCF-ATTRIBUTION.md).
 
 ## Documentation
 
@@ -202,16 +202,36 @@ export ANTHROPIC_VERTEX_PROJECT_ID=your-project-id
 
 Full guide: [`docs/ENTERPRISE-DEPLOYMENT.md`](docs/ENTERPRISE-DEPLOYMENT.md).
 
-## Related tools I built
+## Adjacent open-source tools
 
-This toolkit is the integration layer over a bunch of adjacent tools I maintain. Each can be used on its own:
+The toolkit wraps or interoperates with a number of independent projects maintained outside the Club. Each can be used on its own:
 
 - **Inspector family** ([`hackIDLE`](https://github.com/hackIDLE)): 30+ multi-framework compliance audit tools for AWS, Azure, GCP, OCI, Cloudflare, GitHub, Okta, Duo, Slack, Zoom, Webex, Salesforce, Snowflake, Datadog, Splunk, Sumologic, NewRelic, Elastic, Tenable, Qualys, Veracode, CrowdStrike, Palo Alto, Zscaler, KnowBe4, Box, ServiceNow, PagerDuty, Zendesk, LaunchDarkly, MuleSoft.
-- **OSCAL tooling** ([`ethanolivertroy`](https://github.com/ethanolivertroy)): `oscal-cli` (Go rewrite of NIST's Java tool), `compliance-trestle-skills`, `frdocx-to-froscal-ssp`, `fedramp-docs-mcp`, `emass-skills`.
+- **OSCAL tooling** (maintained by [`@ethanolivertroy`](https://github.com/ethanolivertroy)): `oscal-cli` (Go rewrite of NIST's Java tool), `compliance-trestle-skills`, `frdocx-to-froscal-ssp`, `fedramp-docs-mcp`, `emass-skills`.
 - **FedRAMP audit scripts**: cloud-shell-audit tools for AWS, Azure, and GCP, plus `duo-audit`, `slack-audit`, `splunk-audit`, `crypto-widget-evidence-collector`.
 - **Policy-as-code**: `terrascan` (fork), `llm-cloudpolicy-scanner`, `wilma` (AWS Bedrock security), `mesh-security`, `mesh-config-analyzer`.
 - **Reference datasets**: [`scf-api`](https://github.com/hackIDLE/scf-api) (this toolkit's crosswalk backbone), `NIST-CMVP-API`, `cmvp-tui`, `kevs-tui`, `fedramp-browser`.
 - **Curated lists**: [`awesome-grc-engineering`](https://github.com/ethanolivertroy/awesome-grc-engineering), [`awesome-grc-ai`](https://github.com/ethanolivertroy/awesome-grc-ai).
+
+These projects are not part of this repo or governed by the Club. They're listed here because they pair well with the toolkit.
+
+## Community
+
+This toolkit is developed openly by the [GRC Engineering Club](https://grcengclub.com). Contributions are welcome from anyone working in GRC: assessors, internal audit, security engineering, CISO teams, TPRM, platform operators, framework experts.
+
+- **Contributing**: [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md). The highest-value contributions are new connectors (Tier-2 roadmap above), framework plugin improvements, and real-world implementation guidance. A typical connector is ~200 lines.
+- **Discussions**: [github.com/GRCEngClub/claude-grc-engineering/discussions](https://github.com/GRCEngClub/claude-grc-engineering/discussions) — "how would I add a connector for X?" and similar design questions welcome.
+- **Issues**: Use a template when opening. Security-sensitive issues go to a private advisory; see `SECURITY.md`.
+- **Recognition**: contributors are credited via the [all-contributors](https://allcontributors.org) bot on every PR. Comment `@all-contributors please add @you for code,doc` after your PR merges, or ask a maintainer.
+
+### Maintainers
+
+This project is co-led by members of the [GRC Engineering Club leadership team](https://github.com/orgs/GRCEngClub/teams/grc-eng-leadership-team). Current co-leads:
+
+- **AJ Yawn** ([@ajy0127](https://github.com/ajy0127)) — founder of the GRC Engineering Club; GRC Engineering Lead at NR Labs; formerly VP/Director of GRC Engineering, Principal Consultant at Coalfire, and U.S. Army Captain.
+- **Ethan Troy** ([@ethanolivertroy](https://github.com/ethanolivertroy)) — founded this toolkit in 2025 and contributed it to the Club in 2026; former 3PAO FedRAMP assessor; multi-framework advisor across SOC 2, PCI DSS, FISMA, and NIST 800-53.
+
+See `GOVERNANCE.md` and `MAINTAINERS.md` for the decision process and how to become a maintainer.
 
 ## Status
 
@@ -219,8 +239,4 @@ Pre-1.0. The schema is versioned (v1.0.0) and Tier-1 connectors are the focus of
 
 ## License
 
-MIT for original code. Exceptions are documented in [LICENSE](LICENSE). One plugin (`plugins/frameworks/cis-controls/`) is CC BY-SA 4.0.
-
-## Contributing
-
-Contributions welcome. Start with [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md). The highest-value contributions are new connectors and improvements to existing ones.
+MIT for original code, copyright © GRC Engineering Club contributors. Exceptions are documented in [LICENSE](LICENSE). One plugin (`plugins/frameworks/cis-controls/`) is CC BY-SA 4.0 per upstream terms. SCF data is CC BY-ND 4.0 and redistributed verbatim.
