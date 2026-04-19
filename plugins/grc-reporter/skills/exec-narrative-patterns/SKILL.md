@@ -11,7 +11,7 @@ Different readers want different things. The same findings should not land the s
 ## Audience quick reference
 
 | Audience | Length budget | Opening line wants | Technical depth | What they skip |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Full board | 1 page max | Strategic posture one-liner | Low. No control IDs in body. | Operational detail, acronyms, tables with >5 rows |
 | Audit committee | 2 pages | Risk-and-assurance posture | Medium. Control families OK, not IDs. | Strategy monologue, vendor names unless load-bearing |
 | Risk committee | 2 pages | Residual risk movement | Medium-high. Framework names, risk scoring. | Program branding, tool selection detail |

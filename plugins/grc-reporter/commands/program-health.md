@@ -10,7 +10,7 @@ Draft a portfolio snapshot of the whole GRC program. Built for CISO 1:1s and pro
 ## Arguments
 
 - `$1` - As-of date (optional, defaults to today, e.g. `2026-04-18`)
-- `$2` - Frameworks (optional, comma-separated SCF IDs; defaults to all frameworks with recent runs)
+- `$2` - Frameworks (optional, comma-separated framework aliases accepted by `/grc-engineer:gap-assessment`; defaults to all frameworks with recent runs)
 
 ## Instructions
 
@@ -80,5 +80,5 @@ Write to `./grc-reports/program-health-<as-of>.md`. Offer:
 /report:program-health
 
 # Specific date, specific frameworks
-/report:program-health 2026-04-18 soc2,fedramp-rev5,iso27001
+/report:program-health 2026-04-18 soc2,fedramp-moderate,iso27001
 ```

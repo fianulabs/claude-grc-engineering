@@ -19,7 +19,7 @@ Draft a quarterly board or audit-committee brief. This is a real board brief, no
 Invoke `context-bootstrap`. For a meaningful quarterly brief, check:
 
 - Findings cache has runs across the full quarter, not just the last week
-- Risk register at `./grc-data/risks/` with residual risk values
+- Risk register at `./grc-data/risks/` with residual risk values, following `docs/GRC-DATA.md`
 - Incident history in `./grc-data/incidents/` (if tracked)
 - Framework coverage in scope - a board brief needs to name the frameworks the committee oversees
 
@@ -89,7 +89,7 @@ Structure:
 Write to `./grc-reports/board-brief-<quarter>-<audience>.md`. Offer:
 
 - PDF or DOCX via `pandoc` (most boards want a PDF)
-- Pass to `/transform:markdown-to-executive` for a tighter board-deck version
+- Tighten into a 1-page board summary with a follow-on editing pass if the committee wants a shorter cut
 - Commit to `grc-data/history/quarters/` for trend reference
 
 ## Examples

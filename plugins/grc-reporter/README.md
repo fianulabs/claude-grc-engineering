@@ -9,7 +9,7 @@ Reference implementation of the Reporting category proposed in [RFC #38](https:/
 ## Commands
 
 | Command | Purpose |
-|---|---|
+| --- | --- |
 | `/report:exec-summary` | Weekly 1-page for the CISO and direct leadership |
 | `/report:board-brief` | Quarterly audit-committee or board-ready narrative |
 | `/report:program-health` | Portfolio view across every framework in scope, sized for CISO 1:1s |
@@ -22,6 +22,12 @@ Heavy auto-discover when your toolkit has context. Heavy ask-and-guide when it d
 If you have findings cached, a risk register, and framework plugins installed, commands read all that up front and only ask you the one or two things Claude can't infer (audience, material asks, quarter, incident timeline).
 
 If you're starting cold, commands walk you through setup. Install `grc-engineer`, at least one connector, at least one framework plugin, run a collect, then come back. Hollow reports are worse than no reports.
+
+Risk and metric records referenced by this plugin follow
+[`docs/GRC-DATA.md`](../../docs/GRC-DATA.md).
+
+For automation coverage specifically, seed weekly snapshots with
+`/grc-engineer:record-automation-metrics`.
 
 ## Output
 

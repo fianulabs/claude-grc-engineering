@@ -10,6 +10,10 @@ Week-over-week automation is the most under-sold thing GRC engineers do. A contr
 
 The analysis has to land the story, not the raw number.
 
+Do not infer automation coverage from Finding remediation metadata alone. If the
+program did not record explicit automation metrics or curated notes, say the
+delta is unknown rather than inventing one.
+
 ## The three anchors
 
 Every automation-coverage report is built on three pieces. Pick the one that matters most for this period's audience and lead with it.
@@ -53,7 +57,7 @@ Lead with one of the three anchors. Do not lead with the table. The table is pro
 
 1. **Headline**: time saved, quality lifted, or future impact. One line.
 2. **The table**: per-framework coverage, previous period, delta. Proof for the headline.
-3. **What moved**: name the controls automated, name the engineer who shipped them. Take-credit-by-name matters for retention. Anonymous wins train nobody.
+3. **What moved**: name the controls automated only when the source data or operator notes explicitly identify them. Take-credit-by-name matters for retention, but invented names are worse than anonymous wins.
 4. **What it unlocks**: 1-3 bullets on downstream effects. This is where you pull on the compounding thread.
 5. **Next targets**: top 3-5 manually evidenced controls by cost. Not a full backlog. Just the priorities.
 

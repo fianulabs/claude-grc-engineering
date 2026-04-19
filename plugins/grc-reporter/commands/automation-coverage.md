@@ -12,7 +12,7 @@ This is where GRC engineers prove their worth. Manual evidence is expensive and 
 ## Arguments
 
 - `$1` - Period (optional, defaults to current week, e.g. `2026-W16`)
-- `$2` - Frameworks (optional, comma-separated SCF IDs; defaults to all with current runs)
+- `$2` - Frameworks (optional, comma-separated framework aliases accepted by `/grc-engineer:gap-assessment`; defaults to all with current runs)
 
 ## Instructions
 
@@ -20,24 +20,28 @@ This is where GRC engineers prove their worth. Manual evidence is expensive and 
 
 Invoke `context-bootstrap`. Week-over-week analysis requires history:
 
-- At least 2 findings runs, at least 7 days apart, per source in scope
+- At least 2 automation metric snapshots, at least 7 days apart, in `./grc-data/metrics/`
+- Metric rows that make the delta explicit, typically `automation.coverage_pct` and `automation.controls_automated`
 - Framework metadata available in plugin.json files (for total control counts)
-- Connector metadata (which SCF controls each connector covers)
+- Findings runs in scope as supporting evidence, not as the primary source of automation coverage truth
 
 If history is thin (0 or 1 runs, or runs clustered in the last few days), this command's empty-context path is the one users will hit. Do not fabricate a delta. Walk the user through:
 
-- Getting their first run going if they have none
+- Getting their first baseline into `./grc-data/metrics/` if they have none, usually with `/grc-engineer:record-automation-metrics`
 - Scheduling regular collection if they have one (`/grc-engineer:monitor-continuous`)
 - Setting a reminder to rerun this command once they have 2+ weeks of history
 
 ### 2. Auto-discover
 
-- Current-period findings run per source
-- Previous-period findings run per source (closest to 7 days prior)
+- Current-period metric rows for `automation.coverage_pct` and `automation.controls_automated`
+- Previous-period metric rows (closest to 7 days prior)
 - Total controls in scope per framework (from framework metadata)
-- Controls with automated coverage this period vs previous period
-- New automations this period (controls that moved manual → automated)
-- Regressions this period (controls that moved automated → manual, if any)
+- Supporting findings runs per source for examples and appendix references
+- Regressions only when the source data or the operator's notes explicitly record them
+
+Prefer operator-observed metric rows. Capability baselines derived from toolkit
+config are useful for setup and planning, but should not be presented as proof
+that a given environment already automated those controls.
 
 ### 3. Ask for narrative context
 
@@ -48,6 +52,8 @@ If history is thin (0 or 1 runs, or runs clustered in the last few days), this c
 ### 4. Generate
 
 Apply `automation-coverage-analysis` for the delta analysis and ROI framing. Apply `so-what-translation` for business-impact translation.
+
+Do not infer manual → automated state from `evaluations[].remediation.automation` in Findings. That field describes remediation effort, not evidence-collection coverage.
 
 Structure:
 
@@ -64,16 +70,16 @@ Structure:
 
 ## What Moved This Period
 ### Gains
-- <Control ID, name, source that automated it, time saved per cycle>
+- <Metric-supported gain, and named controls only when the source data or operator notes explicitly identify them>
 
 ### Regressions (if any)
-- <Control ID, why it moved back to manual>
+- <Only include when the source data explicitly records the regression and the cause>
 
 ## ROI Framing
 <If prior-period manual evidence took X hours per cycle and the automated version is effectively free, this is the compounded saving. Avoid fake precision. Use honest ranges.>
 
 ## Next Targets
-<Top 5 manually-evidenced controls by cost (frequency x hours). These are next quarter's engineering backlog.>
+<Top 5 manually-evidenced controls by cost (frequency x hours) when the program tracks them. Otherwise, list next automation themes rather than pretending you have control-level precision.>
 
 ## Appendix
 Current-period run: <run_id>
@@ -85,7 +91,8 @@ Period delta: <days>
 
 Write to `./grc-reports/automation-coverage-<period>.md`. Offer:
 
-- Commit to `grc-data/history/automation/` for longitudinal tracking
+- Commit the source metric rows to `grc-data/metrics/` for longitudinal tracking
+- Use `/grc-engineer:record-automation-metrics` to add the current-period snapshot if the week is missing
 - Pass to `/report:board-brief` as a program-initiative input for the quarterly brief
 - Open an issue on the Next Targets list if the user wants to queue them as engineering work
 
@@ -99,5 +106,5 @@ Write to `./grc-reports/automation-coverage-<period>.md`. Offer:
 /report:automation-coverage 2026-W16
 
 # SOC 2 and FedRAMP only
-/report:automation-coverage 2026-W16 soc2,fedramp-rev5
+/report:automation-coverage 2026-W16 soc2,fedramp-moderate
 ```

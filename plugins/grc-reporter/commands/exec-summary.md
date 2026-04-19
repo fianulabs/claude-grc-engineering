@@ -20,7 +20,7 @@ Before drafting, verify the toolkit has what it needs. Invoke the `context-boots
 
 - Findings cache populated: `ls ~/.cache/claude-grc/findings/*/` returns recent runs
 - At least one framework plugin installed
-- Optional but recommended: `./grc-data/risks/` with YAML risk entries, `./grc-data/metrics/` with recent values
+- Optional but recommended: `./grc-data/risks/` and `./grc-data/metrics/` following `docs/GRC-DATA.md`
 
 If context is empty or partial, follow the `context-bootstrap` skill's setup path. Do not generate a hollow report.
 

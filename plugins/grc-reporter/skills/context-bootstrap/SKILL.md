@@ -23,7 +23,14 @@ Before any report command generates, verify:
 
 4. **History depth (for week-over-week commands).** `/report:automation-coverage` needs at least 2 runs 7+ days apart per source. Count files in the findings cache by mtime.
 
-5. **Optional GitOps state.** `./grc-data/risks/*.yaml`, `./grc-data/metrics/*.yaml`, `./grc-data/incidents/*.md`. Missing is fine; present is better.
+5. **Optional GitOps state.** `./grc-data/risks/*`, `./grc-data/metrics/*`, `./grc-data/incidents/*.md`. The JSON contracts live in `docs/GRC-DATA.md`. Missing is fine; present is better.
+
+## Command-specific minimums
+
+- **`/report:exec-summary`**: one connector, one framework, recent findings. Risks and metrics improve it but are not mandatory.
+- **`/report:program-health`**: two framework plugins plus one successful gap-assessment run per framework. A single-framework setup is not enough.
+- **`/report:board-brief`**: quarter-spanning findings history plus a real risk register if you want residual-risk sections to be grounded.
+- **`/report:automation-coverage`**: two metric snapshots in `./grc-data/metrics/` at least 7 days apart. Findings cache alone is not enough to claim week-over-week automation movement.
 
 ## The three paths
 
@@ -35,7 +42,7 @@ Auto-discover everything. Ask at most one or two narrative questions (audience, 
 
 Name what's missing. Auto-discover what exists. Offer to proceed with interview mode where the user fills the gaps conversationally. Example:
 
-> I see findings from github-inspector across the last 14 days, SOC 2 framework installed. No risk register at `./grc-data/risks/`. I can still write the report using findings and metrics only, or you can set up a risk register first. Which do you want?
+> I see findings from github-inspector across the last 14 days, SOC 2 framework installed. No risk register at `./grc-data/risks/`. I can still write the report using findings and metrics only, or you can set up a risk register first. `docs/GRC-DATA.md` shows the file shape. Which do you want?
 
 ### Empty context
 
@@ -67,7 +74,7 @@ Deliver these steps in plain conversational form. Do not dump all commands at on
    /github-inspector:setup
    ```
 
-   Confirms `gh auth status`, clones the inspector binary, writes a default config.
+   Confirms `gh auth status` and writes a default config.
 
 4. **Collect findings**
 
@@ -87,16 +94,25 @@ Deliver these steps in plain conversational form. Do not dump all commands at on
 
 6. **Come back to the report command.** With findings in cache, rerun the report command that sent the user here.
 
+7. **If the user wants `/report:program-health`, add a second framework now.**
+
+   ```
+   /plugin install fedramp-rev5@grc-engineering-suite
+   /grc-engineer:gap-assessment SOC2,FedRAMP-Moderate --sources=github-inspector
+   ```
+
+   `program-health` needs more than one framework in scope or it is not a portfolio view.
+
 ## For `/report:automation-coverage` specifically
 
 This command needs history. If the user just finished a first-time setup, tell them:
 
-> You have one collection run from today. Automation coverage needs at least two runs 7+ days apart so there's a delta to report. Two options:
+> You have one baseline from today. Automation coverage needs at least two metric snapshots 7+ days apart so there's a delta to report. Two options:
 >
 > 1. Schedule regular collection with `/grc-engineer:monitor-continuous SOC2 daily --sources=github-inspector`. Come back in 7-14 days.
-> 2. If the toolkit already has runs you haven't looked at, check `ls ~/.cache/claude-grc/findings/*/` for older timestamps I may have missed.
+> 2. Run `/grc-engineer:record-automation-metrics <framework> --controls-total=<n> --controls-automated=<n> --window-label=<period>` once per week so `./grc-data/metrics/` builds a real history, then rerun the report after you have two snapshots.
 
-Do not fabricate a week-over-week comparison.
+Do not fabricate a week-over-week comparison from Findings alone.
 
 ## When to break the "no hollow report" rule
 
